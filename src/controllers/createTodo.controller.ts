@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
-import { createTodo } from "../models/todo.model";
+import { createTodo } from "../sql-models/todo.model";
+// import { createTodo } from "../models/todo.model";
 
-export const createTodoController = (req: Request, res: Response) => {
+export const createTodoController = async (req: Request, res: Response) => {
   const body = req.body;
 
   // TODO: validate the body
 
-  const createdTodo = createTodo(body);
+  const createdTodo = await createTodo(body);
 
   res.json({
     message: "create todo",

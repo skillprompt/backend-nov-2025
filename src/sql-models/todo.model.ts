@@ -1,8 +1,9 @@
+import { RowDataPacket } from "mysql2";
 import { appDbConnection } from "../lib/mysql";
 
 export type StatusType = "PENDING" | "IN_PROGRESS" | "COMPLETED";
 
-export interface Todo {
+export interface Todo extends RowDataPacket {
   id: number;
   title: string;
   status: StatusType;
@@ -26,29 +27,33 @@ export async function createTodo(todoData: Todo) {
   return todoData;
 }
 
-// export function updateTodo(todoId: number, body: Partial<Todo>) {
-//   const todo = getTodoById(todoId);
-//   if (!todo.data) {
-//     throw new Error(`Todo not found by id - ${todoId}`);
-//   }
+export async function updateTodo(todoId: number, body: Partial<Todo>) {
+  const todo = await getTodoById(todoId);
+  if (!todo.data) {
+    throw new Error(`Todo not found by id - ${todoId}`);
+  }
 
-//   const updatedTodos = todos.map((todo) => {
-//     if (todo.id === todoId) {
-//       // element found to update
-//       return {
-//         ...todo,
-//         ...body,
-//       };
-//     } else {
-//       // don't update
-//       return todo;
-//     }
-//   });
+  // update todo code
+  const db = await appDbConnection();
 
-//   todos = updatedTodos;
+  const result = await db.query(`
+    UPDATE tasks 
+    set 
+    title="${body.title}",
+    ${
+      body.description?.length && body.description?.length > 0
+        ? `description="${body.description}",`
+        : ""
+    }
+    status="${body.status}",
+    completed_at="${body.completed_at}"
+    WHERE id=${todoId};
+  `);
 
-//   return todos;
-// }
+  console.log("Updated result", result);
+
+  return body;
+}
 
 // export function deleteTodo(todoId: number) {
 //   const todo = getTodoById(todoId);
@@ -61,21 +66,25 @@ export async function createTodo(todoData: Todo) {
 //   return splicedTodos;
 // }
 
-// export function getTodoById(todoId: number) {
-//   const todoIdx = todos.findIndex((todo) => {
-//     if (todo.id === todoId) return true;
-//     else return false;
-//   });
+export async function getTodoById(todoId: number) {
+  const db = await appDbConnection();
 
-//   if (todoIdx === -1) {
-//     throw new Error(`Todo not found by id - ${todoId}`);
-//   }
+  const result = await db.query(`
+    SELECT * FROM tasks
+    WHERE id=${todoId};
+  `); // [a, sth]
 
-//   return {
-//     idx: todoIdx,
-//     data: todos[todoIdx],
-//   };
-// }
+  const todo = result[0] as Todo[];
+  console.log("get todo", todo);
+
+  if (todo.length === 0) {
+    throw new Error(`Todo not found by id - ${todoId}`);
+  }
+
+  return {
+    data: todo,
+  };
+}
 
 // export function getAllTodos(query: { status?: StatusType }) {
 //   if (!query.status) {

@@ -1,6 +1,7 @@
 import { TLoginUserSchema } from "../controllers/users/loginUser.controller";
 import { TSignUpUserSchema } from "../controllers/users/signUpUser.controller";
 import { TUpdateUserSchema } from "../controllers/users/updateUserById.controller";
+import { comparePassword } from "../lib/hash";
 import { prisma } from "../lib/prisma";
 
 export async function createUser(data: TSignUpUserSchema) {
@@ -42,10 +43,15 @@ export async function loginUser(data: TLoginUserSchema) {
     throw new Error(`You are not registered! Please register.`);
   }
 
-  if (data.password !== userFound.password) {
-    throw new Error(`Username or password invalid`);
+  // check if password matches
+  const isPasswordCorrect = await comparePassword(
+    userFound.password,
+    data.password
+  );
+
+  if (!isPasswordCorrect) {
+    throw new Error(`Username or password is incorrect!`);
   }
-  // missing
 
   return userFound;
 }

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { z } from "zod";
 import { loginUser } from "../../prisma-models/user.model";
+import { comparePassword } from "../../lib/hash";
 
 const LoginUserSchema = z.object({
   username: z.string().min(2).max(50),

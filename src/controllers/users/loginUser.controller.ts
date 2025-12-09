@@ -36,6 +36,10 @@ export async function loginUserController(req: Request, res: Response) {
 
   loggedInUsers.push(randomString);
 
+  res.cookie("token", randomString, {
+    httpOnly: true,
+  });
+
   res.json({
     message: "Logged in!",
     data: { ...user, token: randomString },

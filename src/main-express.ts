@@ -2,10 +2,12 @@ import express from "express";
 import { createTodoRouter } from "./routers/todo.router";
 import { createCategoryRouter } from "./routers/category.router";
 import { createUserRouter } from "./routers/user.router";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
   res.json({

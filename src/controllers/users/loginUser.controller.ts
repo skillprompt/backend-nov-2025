@@ -10,6 +10,11 @@ const LoginUserSchema = z.object({
 
 export type TLoginUserSchema = z.infer<typeof LoginUserSchema>;
 
+export let loggedInUsers: string[] = [];
+export function removeUser(token: string) {
+  loggedInUsers = loggedInUsers.filter((userToken) => userToken !== token);
+}
+
 export async function loginUserController(req: Request, res: Response) {
   const body = req.body;
 
@@ -26,8 +31,13 @@ export async function loginUserController(req: Request, res: Response) {
   // data valid
   const user = await loginUser(parsedData.data);
 
+  const randomNumberOfLength6 = Math.floor(Math.random() * 1000000);
+  const randomString = randomNumberOfLength6.toString();
+
+  loggedInUsers.push(randomString);
+
   res.json({
     message: "Logged in!",
-    data: user,
+    data: { ...user, token: randomString },
   });
 }

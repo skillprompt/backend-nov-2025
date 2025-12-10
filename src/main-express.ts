@@ -9,11 +9,33 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-app.get("/", (req, res) => {
-  res.json({
-    message: "hello from express updated!",
-  });
-});
+app.get(
+  "/",
+  (req, res, next) => {
+    console.log("1 received request on /");
+    const user = req.query.user;
+    if (user === "ram") {
+      req.user = {
+        id: 1,
+        name: "ram",
+      };
+
+      next();
+    } else {
+      res.status(401).json({
+        message: "You are not authorized!",
+      });
+    }
+  },
+  (req, res) => {
+    const userDetails = req.user;
+    console.log("allowed user is: ", userDetails);
+
+    res.json({
+      message: "hello ram!",
+    });
+  }
+);
 
 createTodoRouter(app);
 createCategoryRouter(app);

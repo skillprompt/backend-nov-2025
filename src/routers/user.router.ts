@@ -7,6 +7,7 @@ import { updateUserByIdController } from "../controllers/users/updateUserById.co
 import { deleteUserController } from "../controllers/users/deleteUser.controller";
 import { getMeUserController } from "../controllers/users/getMeUser.controller";
 import { logoutUserController } from "../controllers/users/logoutUser.controller";
+import { accessControlCheckMiddleware } from "../middlewares/accessControlCheckMiddleware";
 
 export async function createUserRouter(app: Application) {
   // sign up
@@ -14,7 +15,7 @@ export async function createUserRouter(app: Application) {
   // login
   app.post("/users/login", loginUserController);
   // get all users
-  app.get("/users", getAllUsersController);
+  app.get("/users", accessControlCheckMiddleware, getAllUsersController);
   // update user by id
   app.put("/users/:userId", updateUserByIdController);
   // delete a user by id

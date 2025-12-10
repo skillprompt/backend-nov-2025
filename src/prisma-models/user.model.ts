@@ -27,6 +27,7 @@ export async function createUser(data: TSignUpUserSchema) {
       email: data.email,
       password: data.password,
       username: data.username,
+      role: "USER",
     },
   });
   return createdUser;

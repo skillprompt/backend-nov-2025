@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { loggedInUsers } from "./loginUser.controller";
+import { prisma } from "../../lib/prisma";
 
 export async function getMeUserController(req: Request, res: Response) {
   const token = req.cookies.token as string;
@@ -8,7 +8,14 @@ export async function getMeUserController(req: Request, res: Response) {
     throw new Error(`You are not logged in!`);
   }
 
-  const userFound = loggedInUsers.find((userToken) => userToken === token);
+  const userFound = await prisma.userSession.findFirst({
+    where: {
+      session_id: token,
+    },
+    include: {
+      user: true,
+    },
+  });
 
   if (!userFound) {
     throw new Error(`You are not logged in!`);
@@ -16,6 +23,6 @@ export async function getMeUserController(req: Request, res: Response) {
 
   res.json({
     message: "You are logged in!",
-    data: { token },
+    data: { token, user: userFound.user },
   });
 }

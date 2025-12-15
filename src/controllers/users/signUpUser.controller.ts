@@ -7,7 +7,6 @@ const SignUpUserSchema = z.object({
   email: z.string().email(),
   username: z.string().min(2).max(50),
   password: z.string().min(6).max(15),
-  role: z.enum(["USER", "ADMIN", "SUPER_ADMIN"]),
 });
 
 export type TSignUpUserSchema = z.infer<typeof SignUpUserSchema>;

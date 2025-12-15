@@ -1,3 +1,16 @@
+declare global {
+  namespace Express {
+    export interface Request {
+      user?: {
+        id: number;
+        username: string;
+        email: string;
+        role: "SUPER_ADMIN" | "ADMIN" | "USER";
+      };
+    }
+  }
+}
+
 import express from "express";
 import { createTodoRouter } from "./routers/todo.router";
 import { createCategoryRouter } from "./routers/category.router";
@@ -17,7 +30,9 @@ app.get(
     if (user === "ram") {
       req.user = {
         id: 1,
-        name: "ram",
+        username: "ram",
+        email: "ram@ram",
+        role: "USER",
       };
 
       next();

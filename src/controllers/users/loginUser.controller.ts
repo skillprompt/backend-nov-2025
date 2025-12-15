@@ -39,6 +39,11 @@ export async function loginUserController(req: Request, res: Response) {
 
   res.cookie("token", randomString, {
     httpOnly: true,
+    maxAge: 1 * 60 * 1000,
+    domain: "localhost", // skillprompt.ccom, backend.skillprompt.com
+    secure: false, // in  production keep it always true
+    sameSite: "lax",
+    path: "/users", // /v1/tasks, /v1/users
   });
 
   res.json({

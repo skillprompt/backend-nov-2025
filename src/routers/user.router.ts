@@ -8,6 +8,9 @@ import { deleteUserController } from "../controllers/users/deleteUser.controller
 import { getMeUserController } from "../controllers/users/getMeUser.controller";
 import { logoutUserController } from "../controllers/users/logoutUser.controller";
 import { accessControlCheckMiddleware } from "../middlewares/accessControlCheckMiddleware";
+import { checkAuth } from "../middlewares/checkAuth";
+import { checkSuperAdminRole } from "../middlewares/checkSuperAdminRole";
+import { generateAccessControlMiddleware } from "../middlewares/generateAccessControlMiddleware";
 
 export async function createUserRouter(app: Application) {
   // sign up
@@ -15,15 +18,40 @@ export async function createUserRouter(app: Application) {
   // login
   app.post("/users/login", loginUserController);
   // get all users
-  app.get("/users", accessControlCheckMiddleware, getAllUsersController);
+  app.get(
+    "/users",
+    checkAuth,
+    generateAccessControlMiddleware(["SUPER_ADMIN"]),
+    getAllUsersController
+  );
   // update user by id
-  app.put("/users/:userId", updateUserByIdController);
+  app.put(
+    "/users/:userId",
+    checkAuth,
+    generateAccessControlMiddleware(["SUPER_ADMIN", "ADMIN", "USER"]),
+    updateUserByIdController
+  );
   // delete a user by id
-  app.delete("/users/:userId", deleteUserController);
+  app.delete(
+    "/users/:userId",
+    checkAuth,
+    generateAccessControlMiddleware(["SUPER_ADMIN", "ADMIN", "USER"]),
+    deleteUserController
+  );
 
-  app.get("/users/me", getMeUserController);
+  app.get(
+    "/users/me",
+    checkAuth,
+    generateAccessControlMiddleware(["SUPER_ADMIN", "ADMIN", "USER"]),
+    getMeUserController
+  );
   // get user by id
-  app.get("/users/:userId", getUserByIdController);
+  app.get(
+    "/users/:userId",
+    checkAuth,
+    generateAccessControlMiddleware(["SUPER_ADMIN", "ADMIN", "USER"]),
+    getUserByIdController
+  );
 
-  app.post("/users/logout", logoutUserController);
+  app.post("/users/logout", checkAuth, logoutUserController);
 }

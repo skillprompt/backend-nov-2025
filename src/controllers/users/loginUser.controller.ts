@@ -3,6 +3,8 @@ import { z } from "zod";
 import { loginUser } from "../../prisma-models/user.model";
 import { comparePassword } from "../../lib/hash";
 import { prisma } from "../../lib/prisma";
+import { generateToken } from "../../lib/token";
+import { ENV } from "../../lib/env";
 
 const LoginUserSchema = z.object({
   username: z.string().min(2).max(50),
@@ -27,27 +29,34 @@ export async function loginUserController(req: Request, res: Response) {
   // data valid
   const user = await loginUser(parsedData.data);
 
-  const randomNumberOfLength6 = Math.floor(Math.random() * 1000000);
-  const randomString = randomNumberOfLength6.toString();
+  // const randomNumberOfLength6 = Math.floor(Math.random() * 1000000);
+  // const randomString = randomNumberOfLength6.toString();
 
-  await prisma.userSession.create({
-    data: {
-      user_id: user.id,
-      session_id: randomString,
-    },
+  const token = generateToken({
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    role: user.role,
   });
 
-  res.cookie("token", randomString, {
+  // await prisma.userSession.create({
+  //   data: {
+  //     user_id: user.id,
+  //     session_id: randomString,
+  //   },
+  // });
+
+  res.cookie("token", token, {
     httpOnly: true,
-    maxAge: 1 * 60 * 1000,
+    maxAge: ENV.JWT_TOKEN_COOKIE_AGE_IN_SECONDS * 1000,
     domain: "localhost", // skillprompt.ccom, backend.skillprompt.com
     secure: false, // in  production keep it always true
     sameSite: "lax",
-    path: "/users", // /v1/tasks, /v1/users
+    path: "/", // /v1/tasks, /v1/users
   });
 
   res.json({
     message: "Logged in!",
-    data: { ...user, token: randomString },
+    data: { ...user, token: token },
   });
 }

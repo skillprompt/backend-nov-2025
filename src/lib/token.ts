@@ -9,9 +9,12 @@ type TTokenPayload = {
   username: string;
 };
 
-export function generateToken(userPayload: TTokenPayload) {
+export function generateToken(
+  userPayload: TTokenPayload,
+  expiryTimeInSeconds: number
+) {
   const token = jwt.sign(userPayload, ENV.JWT_SECRET, {
-    expiresIn: ENV.JWT_EXPIRATION_TIME_IN_SECONDS, // 15 minutes
+    expiresIn: expiryTimeInSeconds,
   });
   return token;
 }

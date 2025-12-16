@@ -32,23 +32,38 @@ export async function loginUserController(req: Request, res: Response) {
   // const randomNumberOfLength6 = Math.floor(Math.random() * 1000000);
   // const randomString = randomNumberOfLength6.toString();
 
-  const token = generateToken({
-    id: user.id,
-    username: user.username,
-    email: user.email,
-    role: user.role,
-  });
+  const token = generateToken(
+    {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    },
+    ENV.JWT_EXPIRATION_TIME_IN_SECONDS
+  );
 
-  // await prisma.userSession.create({
-  //   data: {
-  //     user_id: user.id,
-  //     session_id: randomString,
-  //   },
-  // });
+  const refreshToken = generateToken(
+    {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    },
+    ENV.REFRESH_TOKEN_EXPIRATION_TIME_IN_SECONDS
+  );
 
   res.cookie("token", token, {
     httpOnly: true,
     maxAge: ENV.JWT_TOKEN_COOKIE_AGE_IN_SECONDS * 1000,
+    domain: "localhost", // skillprompt.ccom, backend.skillprompt.com
+    secure: false, // in  production keep it always true
+    sameSite: "lax",
+    path: "/", // /v1/tasks, /v1/users
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    maxAge: ENV.REFRESH_TOKEN_EXPIRATION_TIME_IN_SECONDS * 1000,
     domain: "localhost", // skillprompt.ccom, backend.skillprompt.com
     secure: false, // in  production keep it always true
     sameSite: "lax",

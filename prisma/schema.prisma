@@ -48,7 +48,11 @@ model users {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
+  phone_no String @default("1234567890") @db.VarChar(20)
+
   role Role @default(USER)
+
+  mobile_no String
 
   tasks        tasks[]
   userSessions UserSession[]
@@ -77,4 +81,9 @@ model tasks_catgories {
   category    categories @relation(fields: [category_id], references: [id])
 
   @@unique([task_id, category_id])
+}
+
+model sample_table {
+  id   Int    @id @default(autoincrement())
+  name String
 }
